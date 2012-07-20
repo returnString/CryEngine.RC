@@ -20,3 +20,5 @@ The source code for CryEngine.RC is available to anyone to download, edit and re
 * The software is only available for non-commercial entities, and may not be relicensed.
 * You must make changes available to the public.
 * In the rare event that we meet, you owe me a pint.
+
+If you want to use this for commercial purposes, just [email me](mailto:ruan@inkdev.net); I don't bite.
