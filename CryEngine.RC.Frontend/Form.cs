@@ -20,9 +20,7 @@ namespace CryEngine.RC.Frontend
 			var dialog = new OpenFileDialog() { Filter = "Autodesk FBX (*.fbx)|*.fbx" };
 
 			if(dialog.ShowDialog() == DialogResult.OK)
-			{
 				uxSourceTextbox.Text = dialog.FileName;
-			}
 		}
 
 		private void SelectFolder(object sender, EventArgs e)
@@ -30,11 +28,7 @@ namespace CryEngine.RC.Frontend
 			var dialog = new FolderBrowserDialog();
 
 			if(dialog.ShowDialog() == DialogResult.OK)
-			{
-				Settings.Default.ProjectPath = dialog.SelectedPath;
-				Settings.Default.Save();
 				uxEngineTextbox.Text = dialog.SelectedPath;
-			}
 		}
 
 		private void Export(object sender, EventArgs e)
@@ -58,6 +52,7 @@ namespace CryEngine.RC.Frontend
 			if(dialog.ShowDialog() == DialogResult.OK)
 			{
 				var scene = Scene.Import(uxSourceTextbox.Text);
+
 				var node = scene.RootNode.ChildNodes.FirstOrDefault(n => n.Attributes.Any(a => a.Type == NodeAttributeType.Mesh));
 
 				if(node == default(SceneNode))
@@ -86,6 +81,12 @@ namespace CryEngine.RC.Frontend
 				uxLog.ScrollToCaret();
 				ActiveControl = selected;
 			}
+		}
+
+		private void FolderChanged(object sender, EventArgs e)
+		{
+			Settings.Default.ProjectPath = uxEngineTextbox.Text;
+			Settings.Default.Save();
 		}
 	}
 }

@@ -75,6 +75,7 @@
 			this.uxEngineTextbox.Name = "uxEngineTextbox";
 			this.uxEngineTextbox.Size = new System.Drawing.Size(348, 20);
 			this.uxEngineTextbox.TabIndex = 4;
+			this.uxEngineTextbox.TextChanged += new System.EventHandler(this.FolderChanged);
 			// 
 			// button3
 			// 
