@@ -38,7 +38,7 @@ namespace CryEngine.RC
 			var polygons = mesh.Polygons;
 
 			// TODO: Work out how physics is done
-			var materialname = name + "__1__" + "physDefault";
+			var materialname = name + "__1__mat__physDefault";
 
 			#region Root Setup
 			var doc = new XDocument();
@@ -49,7 +49,7 @@ namespace CryEngine.RC
 			#region Materials
 			var effects =
 			new XElement("library_effects",
-				new XElement("effect", new XAttribute("id", name + "-1-effect"),
+				new XElement("effect", new XAttribute("id", materialname + "__fx"),
 					new XElement("profile_COMMON",
 						new XElement("technique", new XAttribute("sid", "default"),
 							new XElement("phong")))));
@@ -57,7 +57,7 @@ namespace CryEngine.RC
 			var material =
 			new XElement("library_materials",
 				new XElement("material", new XAttribute("id", materialname), new XAttribute("name", materialname),
-					new XElement("instance_effect", new XAttribute("url", "#" + name + "-1-effect"))));
+					new XElement("instance_effect", new XAttribute("url", "#" + materialname + "__fx"))));
 			root.Add(material);
 			#endregion
 
@@ -215,8 +215,8 @@ namespace CryEngine.RC
 						new XElement("node", new XAttribute("id", name),
 							new XElement("translate", new XAttribute("sid", "translation"), "0 0 0"),
 							new XElement("rotate", new XAttribute("sid", "rotation_Z"), "0 0 1 0.0"),
-							new XElement("rotate", new XAttribute("sid", "rotation_Z"), "0 1 0 0.0"),
-							new XElement("rotate", new XAttribute("sid", "rotation_Z"), "1 0 0 0.0"),
+							new XElement("rotate", new XAttribute("sid", "rotation_Y"), "0 1 0 0.0"),
+							new XElement("rotate", new XAttribute("sid", "rotation_X"), "1 0 0 0.0"),
 							new XElement("scale", new XAttribute("sid", "scale"), "1.0 1.0 1.0"),
 							new XElement("instance_geometry", new XAttribute("url", "#" + name),
 								new XElement("bind_material",
@@ -228,7 +228,7 @@ namespace CryEngine.RC
 									new XElement("properties")))),
 						new XElement("extra",
 							new XElement("technique", new XAttribute("profile", "CryEngine"),
-									new XElement("properties", "fileType=cgf DoNotMerge"))))));
+									new XElement("properties", "fileType=cgf DoNotMerge UseCustomNormals"))))));
 
 			root.Add(sceneLib);
 
