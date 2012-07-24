@@ -20,10 +20,10 @@ namespace CryEngine.RC
 		/// <param name="mesh">The mesh to save.</param>
 		/// <param name="outputFile">The name of the .dae file to which the mesh will be saved.</param>
 		/// <param name="name">The name of the mesh to be used internally for the interim Collada file. This defaults to the file name.</param>
-		public static void ToCollada(Mesh mesh, string outputFile, string name = null)
+		public static void ToCollada(Mesh mesh, FileInfo outputFile, string name = null)
 		{
 			if(name == null)
-				name = outputFile.Split('/', '\\').Last().Split('.').First();
+				name = outputFile.FullName.Split('/', '\\').Last().Split('.').First();
 
 			// We use ToString on doubles, which uses the current culture; the EU etc uses commas, not periods
 			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -239,11 +239,12 @@ namespace CryEngine.RC
 			root.Add(scene);
 			#endregion
 
-			var parentDir = Directory.GetParent(outputFile);
+			var parentDir = outputFile.Directory;
 			if(!parentDir.Exists)
 				parentDir.Create();
 
-			File.WriteAllText(outputFile, doc.ToString());
+			using(var stream = new StreamWriter(outputFile.OpenWrite()))
+				stream.Write(doc.ToString());
 		}
 	}
 }

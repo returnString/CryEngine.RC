@@ -57,21 +57,21 @@ namespace CryEngine.RC.Frontend
 
 				if(node == default(SceneNode))
 				{
-					MessageBox.Show("No mesh found in the FBX scene.");
+					MessageBox.Show("No mesh found in the FBX scene; ensure your mesh is not parented.");
 					return;
 				}
 
 				var writer = new StringWriter();
 				Log.Write = writer.WriteLine;
 
-				var output = dialog.FileName.ToLower();
-				var dae = output.Replace(".cgf", ".dae");
+				var output = new FileInfo(dialog.FileName);
+				var dae = new FileInfo(output.FullName.ToLower().Replace(".cgf", ".dae"));
 
 				FbxConverter.ToCollada(node.Mesh, dae);
-				ColladaConverter.CEPath = Settings.Default.ProjectPath;
+				ColladaConverter.CEPath = new DirectoryInfo(Settings.Default.ProjectPath);
 				ColladaConverter.ToCgf(dae);
 
-				File.Delete(dae);
+				dae.Delete();
 				File.Delete(dae + ".rcdone");
 				
 				uxLog.Text = writer.ToString();
