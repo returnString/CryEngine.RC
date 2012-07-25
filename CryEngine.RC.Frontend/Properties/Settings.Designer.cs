@@ -25,13 +25,25 @@ namespace CryEngine.RC.Frontend.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Dev\\CryENGINE3\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string ProjectPath {
             get {
                 return ((string)(this["ProjectPath"]));
             }
             set {
                 this["ProjectPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public decimal ScaleFactor {
+            get {
+                return ((decimal)(this["ScaleFactor"]));
+            }
+            set {
+                this["ScaleFactor"] = value;
             }
         }
     }

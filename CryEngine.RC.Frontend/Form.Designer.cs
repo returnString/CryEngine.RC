@@ -28,22 +28,16 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.uxSourceTextbox = new System.Windows.Forms.TextBox();
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
 			this.uxEngineTextbox = new System.Windows.Forms.TextBox();
 			this.button3 = new System.Windows.Forms.Button();
 			this.uxLog = new System.Windows.Forms.TextBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.uxScaleUpDown = new System.Windows.Forms.NumericUpDown();
+			this.uxSourceTextbox = new System.Windows.Forms.TextBox();
+			((System.ComponentModel.ISupportInitialize)(this.uxScaleUpDown)).BeginInit();
 			this.SuspendLayout();
-			// 
-			// uxSourceTextbox
-			// 
-			this.uxSourceTextbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-			this.uxSourceTextbox.Location = new System.Drawing.Point(12, 12);
-			this.uxSourceTextbox.Name = "uxSourceTextbox";
-			this.uxSourceTextbox.Size = new System.Drawing.Size(348, 20);
-			this.uxSourceTextbox.TabIndex = 0;
 			// 
 			// button1
 			// 
@@ -71,11 +65,12 @@
 			// 
 			this.uxEngineTextbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.uxEngineTextbox.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::CryEngine.RC.Frontend.Properties.Settings.Default, "ProjectPath", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
 			this.uxEngineTextbox.Location = new System.Drawing.Point(12, 38);
 			this.uxEngineTextbox.Name = "uxEngineTextbox";
 			this.uxEngineTextbox.Size = new System.Drawing.Size(348, 20);
 			this.uxEngineTextbox.TabIndex = 4;
-			this.uxEngineTextbox.TextChanged += new System.EventHandler(this.FolderChanged);
+			this.uxEngineTextbox.Text = global::CryEngine.RC.Frontend.Properties.Settings.Default.ProjectPath;
 			// 
 			// button3
 			// 
@@ -102,11 +97,41 @@
 			this.uxLog.TabIndex = 6;
 			this.uxLog.Text = "Waiting for input.";
 			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(12, 334);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(67, 13);
+			this.label1.TabIndex = 8;
+			this.label1.Text = "Scale Factor";
+			// 
+			// uxScaleUpDown
+			// 
+			this.uxScaleUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::CryEngine.RC.Frontend.Properties.Settings.Default, "ScaleFactor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+			this.uxScaleUpDown.DecimalPlaces = 2;
+			this.uxScaleUpDown.Location = new System.Drawing.Point(85, 332);
+			this.uxScaleUpDown.Name = "uxScaleUpDown";
+			this.uxScaleUpDown.Size = new System.Drawing.Size(73, 20);
+			this.uxScaleUpDown.TabIndex = 7;
+			this.uxScaleUpDown.Value = global::CryEngine.RC.Frontend.Properties.Settings.Default.ScaleFactor;
+			// 
+			// uxSourceTextbox
+			// 
+			this.uxSourceTextbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.uxSourceTextbox.Location = new System.Drawing.Point(12, 12);
+			this.uxSourceTextbox.Name = "uxSourceTextbox";
+			this.uxSourceTextbox.Size = new System.Drawing.Size(348, 20);
+			this.uxSourceTextbox.TabIndex = 0;
+			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(500, 364);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.uxScaleUpDown);
 			this.Controls.Add(this.uxLog);
 			this.Controls.Add(this.button3);
 			this.Controls.Add(this.uxEngineTextbox);
@@ -115,6 +140,8 @@
 			this.Controls.Add(this.uxSourceTextbox);
 			this.Name = "MainForm";
 			this.Text = "CryEngine FBX Converter";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormClose);
+			((System.ComponentModel.ISupportInitialize)(this.uxScaleUpDown)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -128,6 +155,8 @@
 		private System.Windows.Forms.TextBox uxEngineTextbox;
 		private System.Windows.Forms.Button button3;
 		private System.Windows.Forms.TextBox uxLog;
+		private System.Windows.Forms.NumericUpDown uxScaleUpDown;
+		private System.Windows.Forms.Label label1;
 
 	}
 }

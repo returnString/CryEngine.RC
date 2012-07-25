@@ -12,7 +12,6 @@ namespace CryEngine.RC.Frontend
 		public MainForm()
 		{
 			InitializeComponent();
-			uxEngineTextbox.Text = Settings.Default.ProjectPath;
 		}
 
 		private void SelectFile(object sender, EventArgs e)
@@ -33,8 +32,6 @@ namespace CryEngine.RC.Frontend
 
 		private void Export(object sender, EventArgs e)
 		{
-			Settings.Default.Save();
-
 			if(!File.Exists(Path.Combine(Settings.Default.ProjectPath, "Bin32", "rc", "rc.exe")))
 			{
 				MessageBox.Show("Invalid project folder specified, couldn't locate the resource compiler.");
@@ -52,6 +49,9 @@ namespace CryEngine.RC.Frontend
 			if(dialog.ShowDialog() == DialogResult.OK)
 			{
 				var scene = Scene.Import(uxSourceTextbox.Text);
+				scene.ConvertAxes(AxisConversionType.Max);
+				scene.RootNode.Scale *= (float)uxScaleUpDown.Value;
+				scene.BakeTransform(scene.RootNode);
 
 				var node = scene.RootNode.ChildNodes.FirstOrDefault(n => n.Attributes.Any(a => a.Type == NodeAttributeType.Mesh));
 
@@ -83,9 +83,8 @@ namespace CryEngine.RC.Frontend
 			}
 		}
 
-		private void FolderChanged(object sender, EventArgs e)
+		private void FormClose(object sender, FormClosingEventArgs e)
 		{
-			Settings.Default.ProjectPath = uxEngineTextbox.Text;
 			Settings.Default.Save();
 		}
 	}

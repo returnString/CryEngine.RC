@@ -3,7 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="ProjectPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Dev\CryENGINE3\</Value>
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ScaleFactor" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">1</Value>
     </Setting>
   </Settings>
 </SettingsFile>
