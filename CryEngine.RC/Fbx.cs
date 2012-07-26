@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -35,10 +36,7 @@ namespace CryEngine.RC
 				mesh = mesh.Triangulate();
 			}
 
-			var polygons = mesh.Polygons;
-
-			// TODO: Work out how physics is done
-			var materialname = name + "__1__mat__physDefault";
+			var polygons = mesh.Polygons.ToList();
 
 			#region Root Setup
 			var doc = new XDocument();
@@ -47,18 +45,28 @@ namespace CryEngine.RC
 			#endregion
 
 			#region Materials
-			var effects =
-			new XElement("library_effects",
-				new XElement("effect", new XAttribute("id", materialname + "__fx"),
-					new XElement("profile_COMMON",
-						new XElement("technique", new XAttribute("sid", "default"),
-							new XElement("phong")))));
 
-			var material =
-			new XElement("library_materials",
-				new XElement("material", new XAttribute("id", materialname), new XAttribute("name", materialname),
-					new XElement("instance_effect", new XAttribute("url", "#" + materialname + "__fx"))));
-			root.Add(material);
+			var matIds = mesh.MaterialIDs;
+			var materials = (from mat in matIds.Distinct()
+							 select new { Id = mat, Name = string.Format("{0}__{1}__{2}__{3}", name, mat + 1, "sub" + (mat + 1), "physDefault") }).ToList();
+
+			var materialLib = new XElement("library_materials");
+
+			if(materials.Count == 0)
+			{
+				materials.Add(new { Id = 0, Name = string.Format("{0}__{1}__{2}__{3}", name, 1, "sub", "physDefault") });
+			}
+
+			foreach(var material in materials)
+			{
+				materialLib.Add
+				(
+					new XElement("material", new XAttribute("id", material.Name), new XAttribute("name", material.Name),
+						new XElement("instance_effect", new XAttribute("url", "#" + material.Name + "__fx")))
+				);
+			}
+
+			root.Add(materialLib);
 			#endregion
 
 			#region Geometry Base
@@ -92,10 +100,10 @@ namespace CryEngine.RC
 			#endregion
 
 			#region Normals
-			var normals = new int[polygons.Length, 3];
+			var normals = new int[polygons.Count, 3];
 
 			var normalString = new StringBuilder();
-			for(var i = 0; i < polygons.Length; i++)
+			for(var i = 0; i < polygons.Count; i++)
 			{
 				for(var j = 0; j < 3; j++)
 				{
@@ -165,49 +173,71 @@ namespace CryEngine.RC
 			new XElement("vertices", new XAttribute("id", name + "-vertices"),
 				new XElement("input", new XAttribute("semantic", "POSITION"), new XAttribute("source", "#" + name + "-positions")));
 
-			// The count will always be three as we enforce triangulation
-			var vcount = new StringBuilder();
-			foreach(var poly in polygons)
-				vcount.Append("3 ");
-
-			// Here, we create the polylist's reference array
-			// It uses a stride of four, the 1st referencing a vertex, the 2nd a normal, the 3rd a texture coordinate and the 4th a vertex colour
-			var pstring = new StringBuilder();
-			for(var i = 0; i < polygons.Length; i++)
+			foreach(var material in materials)
 			{
-				for(var j = 0; j < 3; j++)
+				var vcount = new StringBuilder();
+				var polies = new List<int>();
+				var isSubmat = matIds.Length > 1;
+
+				if(isSubmat)
 				{
-					// Vertex
-					pstring.Append(" " + polygons[i].Indices[j]);
-
-					// Normal
-					pstring.Append(" " + normals[i, j]);
-
-					// Tex coord
-					pstring.Append(" " + mesh.GetUVIndex(i, j));
-
-					// Vertex colour
-					pstring.Append(" " + (usesColours ? polygons[i].Indices[j] : 0));
+					for(var i = 0; i < polygons.Count; i++)
+					{
+						if(matIds[i] == material.Id)
+							polies.Add(i);
+					}
 				}
-			}
 
-			var polylist =
-			new XElement("polylist", new XAttribute("count", polygons.Length), new XAttribute("material", "#" + materialname),
-				new XElement("input", new XAttribute("offset", 0), new XAttribute("semantic", "VERTEX"), new XAttribute("source", "#" + name + "-vertices")),
-				new XElement("input", new XAttribute("offset", 1), new XAttribute("semantic", "NORMAL"), new XAttribute("source", "#" + name + "-normals")),
-				new XElement("input", new XAttribute("offset", 2), new XAttribute("semantic", "TEXCOORD"), new XAttribute("source", "#" + name + "-coords")),
-				new XElement("input", new XAttribute("offset", 3), new XAttribute("semantic", "COLOR"), new XAttribute("source", "#" + name + "-colours")),
-				new XElement("vcount", vcount),
-				new XElement("p", pstring));
+				// Here, we create the polylist's reference array
+				// It uses a stride of four, the 1st referencing a vertex, the 2nd a normal, the 3rd a texture coordinate and the 4th a vertex colour
+				var pstring = new StringBuilder();
+				var count = isSubmat ? polies.Count : polygons.Count;
+				for(var i = 0; i < count; i++)
+				{
+					// The count will always be three as we enforce triangulation
+					vcount.Append("3 ");
+
+					var index = isSubmat ? polies[i] : i;
+
+					for(var j = 0; j < 3; j++)
+					{
+						// Vertex
+						pstring.Append(" " + polygons[index].Indices[j]);
+
+						// Normal
+						pstring.Append(" " + normals[index, j]);
+
+						// Tex coord
+						pstring.Append(" " + mesh.GetUVIndex(index, j));
+
+						// Vertex colour
+						pstring.Append(" " + (usesColours ? polygons[index].Indices[j] : 0));
+					}
+				}
+
+				var polylist =
+				new XElement("polylist", new XAttribute("count", count), new XAttribute("material", "#" + material.Name),
+					new XElement("input", new XAttribute("offset", 0), new XAttribute("semantic", "VERTEX"), new XAttribute("source", "#" + name + "-vertices")),
+					new XElement("input", new XAttribute("offset", 1), new XAttribute("semantic", "NORMAL"), new XAttribute("source", "#" + name + "-normals")),
+					new XElement("input", new XAttribute("offset", 2), new XAttribute("semantic", "TEXCOORD"), new XAttribute("source", "#" + name + "-coords")),
+					new XElement("input", new XAttribute("offset", 3), new XAttribute("semantic", "COLOR"), new XAttribute("source", "#" + name + "-colours")),
+					new XElement("vcount", vcount),
+					new XElement("p", pstring));
+
+				meshElement.Add(polylist);
+			}
 
 			meshElement.Add(posSource);
 			meshElement.Add(normalSource);
 			meshElement.Add(texSource);
 			meshElement.Add(vertexSource);
-			meshElement.Add(polylist);
 			#endregion
 
 			#region Scene Library
+			var sceneMats = new List<XElement>(matIds.Length);
+			foreach(var material in materials)
+				sceneMats.Add(new XElement("instance_material", new XAttribute("symbol", material.Name), new XAttribute("target", "#" + material.Name)));
+
 			var sceneLib =
 			new XElement("library_visual_scenes",
 				new XElement("visual_scene", new XAttribute("id", "scene"), new XAttribute("name", "scene"),
@@ -220,9 +250,7 @@ namespace CryEngine.RC
 							new XElement("scale", new XAttribute("sid", "scale"), "1.0 1.0 1.0"),
 							new XElement("instance_geometry", new XAttribute("url", "#" + name),
 								new XElement("bind_material",
-									new XElement("technique_common",
-										new XElement("instance_material", new XAttribute("symbol", materialname), new XAttribute("target", "#" + materialname),
-											new XElement("bind_vertex_input", new XAttribute("input_semantic", "TEXCOORD"), new XAttribute("input_set", 0), new XAttribute("semantic", "UVMap")))))),
+									new XElement("technique_common", sceneMats))),
 							new XElement("extra",
 								new XElement("technique", new XAttribute("profile", "CryEngine"),
 									new XElement("properties")))),
