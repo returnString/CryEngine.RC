@@ -182,15 +182,14 @@ namespace CryEngine.RC
 					new XElement("input", new XAttribute("semantic", "POSITION"), new XAttribute("source", "#" + name + "-positions")))
 			);
 
-			var isSubmat = matIds.Length > 1;
+			var usesSubmats = matIds.Length > 1;
 
 			foreach(var material in materials)
 			{
 				var vcount = new StringBuilder();
 				var polies = new List<int>();
-				
 
-				if(isSubmat)
+				if(usesSubmats)
 				{
 					for(var i = 0; i < polygons.Count; i++)
 					{
@@ -202,13 +201,14 @@ namespace CryEngine.RC
 				// Here, we create the polylist's reference array
 				// It uses a stride of four, the 1st referencing a vertex, the 2nd a normal, the 3rd a texture coordinate and the 4th a vertex colour
 				var pstring = new StringBuilder();
-				var count = isSubmat ? polies.Count : polygons.Count;
+				var count = usesSubmats ? polies.Count : polygons.Count;
+
 				for(var i = 0; i < count; i++)
 				{
 					// The count will always be three as we enforce triangulation
 					vcount.Append("3 ");
 
-					var index = isSubmat ? polies[i] : i;
+					var index = usesSubmats ? polies[i] : i;
 
 					for(var j = 0; j < 3; j++)
 					{
@@ -226,16 +226,16 @@ namespace CryEngine.RC
 					}
 				}
 
-				var polylist =
-				new XElement("polylist", new XAttribute("count", count), new XAttribute("material", "#" + material.Name),
-					new XElement("input", new XAttribute("offset", 0), new XAttribute("semantic", "VERTEX"), new XAttribute("source", "#" + name + "-vertices")),
-					new XElement("input", new XAttribute("offset", 1), new XAttribute("semantic", "NORMAL"), new XAttribute("source", "#" + name + "-normals")),
-					new XElement("input", new XAttribute("offset", 2), new XAttribute("semantic", "TEXCOORD"), new XAttribute("source", "#" + name + "-coords")),
-					new XElement("input", new XAttribute("offset", 3), new XAttribute("semantic", "COLOR"), new XAttribute("source", "#" + name + "-colours")),
-					new XElement("vcount", vcount),
-					new XElement("p", pstring));
-
-				meshElement.Add(polylist);
+				meshElement.Add
+				(
+					new XElement("polylist", new XAttribute("count", count), new XAttribute("material", "#" + material.Name),
+						new XElement("input", new XAttribute("offset", 0), new XAttribute("semantic", "VERTEX"), new XAttribute("source", "#" + name + "-vertices")),
+						new XElement("input", new XAttribute("offset", 1), new XAttribute("semantic", "NORMAL"), new XAttribute("source", "#" + name + "-normals")),
+						new XElement("input", new XAttribute("offset", 2), new XAttribute("semantic", "TEXCOORD"), new XAttribute("source", "#" + name + "-coords")),
+						new XElement("input", new XAttribute("offset", 3), new XAttribute("semantic", "COLOR"), new XAttribute("source", "#" + name + "-colours")),
+						new XElement("vcount", vcount),
+						new XElement("p", pstring))
+				);
 			}
 			#endregion
 
