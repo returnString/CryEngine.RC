@@ -50,12 +50,12 @@ namespace CryEngine.RC
 			var materials = (from mat in matIds.Distinct()
 							 select new { Id = mat, Name = string.Format("{0}__{1}__{2}__{3}", name, mat + 1, "sub" + (mat + 1), "physDefault") }).ToList();
 
-			var materialLib = new XElement("library_materials");
-
+			// If a scene is exported without ids/materials, it will be default have no material info whatsoever
+			// For simplicity's sake, we just add a dummy material in those cases to simplify processing later
 			if(materials.Count == 0)
-			{
 				materials.Add(new { Id = 0, Name = string.Format("{0}__{1}__{2}__{3}", name, 1, "sub", "physDefault") });
-			}
+
+			var materialLib = new XElement("library_materials");
 
 			foreach(var material in materials)
 			{
@@ -88,15 +88,17 @@ namespace CryEngine.RC
 			foreach(var vertex in verts)
 				vertString.AppendFormat("{0} {1} {2} ", vertex.X, vertex.Y, vertex.Z);
 
-			var posSource =
-			new XElement("source", new XAttribute("id", name + "-positions"),
-				// Each array uses each vertex component separately and defines the stride later
-				new XElement("float_array", new XAttribute("count", verts.Length * 3), new XAttribute("id", name + "-positions-array"), vertString.ToString()),
-				new XElement("technique_common",
-					new XElement("accessor", new XAttribute("count", verts.Length), new XAttribute("source", "#" + name + "-positions-array"), new XAttribute("stride", 3),
-						new XElement("param", new XAttribute("name", "X"), new XAttribute("type", "float")),
-						new XElement("param", new XAttribute("name", "Y"), new XAttribute("type", "float")),
-						new XElement("param", new XAttribute("name", "Z"), new XAttribute("type", "float")))));
+			meshElement.Add
+			(
+				new XElement("source", new XAttribute("id", name + "-positions"),
+					// Each array uses each vertex component separately and defines the stride later
+					new XElement("float_array", new XAttribute("count", verts.Length * 3), new XAttribute("id", name + "-positions-array"), vertString.ToString()),
+					new XElement("technique_common",
+						new XElement("accessor", new XAttribute("count", verts.Length), new XAttribute("source", "#" + name + "-positions-array"), new XAttribute("stride", 3),
+							new XElement("param", new XAttribute("name", "X"), new XAttribute("type", "float")),
+							new XElement("param", new XAttribute("name", "Y"), new XAttribute("type", "float")),
+							new XElement("param", new XAttribute("name", "Z"), new XAttribute("type", "float")))))
+			);
 			#endregion
 
 			#region Normals
@@ -113,14 +115,16 @@ namespace CryEngine.RC
 				}
 			}
 
-			var normalSource =
-			new XElement("source", new XAttribute("id", name + "-normals"),
-				new XElement("float_array", new XAttribute("count", normals.Length * 3), new XAttribute("id", name + "-normals-array"), normalString.ToString()),
-				new XElement("technique_common",
-					new XElement("accessor", new XAttribute("count", normals.Length), new XAttribute("source", "#" + name + "-normals-array"), new XAttribute("stride", 3),
-						new XElement("param", new XAttribute("name", "X"), new XAttribute("type", "float")),
-						new XElement("param", new XAttribute("name", "Y"), new XAttribute("type", "float")),
-						new XElement("param", new XAttribute("name", "Z"), new XAttribute("type", "float")))));
+			meshElement.Add
+			(
+				new XElement("source", new XAttribute("id", name + "-normals"),
+					new XElement("float_array", new XAttribute("count", normals.Length * 3), new XAttribute("id", name + "-normals-array"), normalString.ToString()),
+					new XElement("technique_common",
+						new XElement("accessor", new XAttribute("count", normals.Length), new XAttribute("source", "#" + name + "-normals-array"), new XAttribute("stride", 3),
+							new XElement("param", new XAttribute("name", "X"), new XAttribute("type", "float")),
+							new XElement("param", new XAttribute("name", "Y"), new XAttribute("type", "float")),
+							new XElement("param", new XAttribute("name", "Z"), new XAttribute("type", "float")))))
+			);
 			#endregion
 
 			#region Coords
@@ -131,22 +135,25 @@ namespace CryEngine.RC
 			foreach(var coord in coords)
 				coordString.AppendFormat("{0} {1} ", Math.Round(coord.X, 6), Math.Round(coord.Y, 6));
 
-			var texSource =
-			new XElement("source", new XAttribute("id", name + "-coords"),
-				new XElement("float_array", new XAttribute("count", coords.Length * 2), new XAttribute("id", name + "-coords-array"), coordString.ToString()),
-				new XElement("technique_common",
-					new XElement("accessor", new XAttribute("count", coords.Length), new XAttribute("source", "#" + name + "-coords-array"), new XAttribute("stride", 2),
-						new XElement("param", new XAttribute("name", "S"), new XAttribute("type", "float")),
-						new XElement("param", new XAttribute("name", "T"), new XAttribute("type", "float")))));
+			meshElement.Add
+			(
+				new XElement("source", new XAttribute("id", name + "-coords"),
+					new XElement("float_array", new XAttribute("count", coords.Length * 2), new XAttribute("id", name + "-coords-array"), coordString.ToString()),
+					new XElement("technique_common",
+						new XElement("accessor", new XAttribute("count", coords.Length), new XAttribute("source", "#" + name + "-coords-array"), new XAttribute("stride", 2),
+							new XElement("param", new XAttribute("name", "S"), new XAttribute("type", "float")),
+							new XElement("param", new XAttribute("name", "T"), new XAttribute("type", "float")))))
+			);
 			#endregion
 
 			#region Vertex Colours
 			var colours = mesh.VertexColours;
-			var colourString = new StringBuilder();
 			var usesColours = colours.Length != 0;
-
+			
 			if(usesColours)
 			{
+				var colourString = new StringBuilder();
+
 				for(var i = 0; i < verts.Length; i++)
 				{
 					var colour = colours[i];
@@ -154,30 +161,34 @@ namespace CryEngine.RC
 						Math.Round(colour.R, 6), Math.Round(colour.G, 6), Math.Round(colour.B, 6), Math.Round(colour.A, 6)));
 				}
 
-				var colourSource =
-				new XElement("source", new XAttribute("id", name + "-colours"),
-					new XElement("float_array", new XAttribute("count", colours.Length * 4), new XAttribute("id", name + "-colours-array"), colourString.ToString()),
-					new XElement("technique_common",
-						new XElement("accessor", new XAttribute("count", colours.Length), new XAttribute("source", "#" + name + "-colours-array"), new XAttribute("stride", 4),
-							new XElement("param", new XAttribute("name", "R"), new XAttribute("type", "float")),
-							new XElement("param", new XAttribute("name", "G"), new XAttribute("type", "float")),
-							new XElement("param", new XAttribute("name", "B"), new XAttribute("type", "float")),
-							new XElement("param", new XAttribute("name", "A"), new XAttribute("type", "float")))));
-
-				meshElement.Add(colourSource);
+				meshElement.Add
+				(
+					new XElement("source", new XAttribute("id", name + "-colours"),
+						new XElement("float_array", new XAttribute("count", colours.Length * 4), new XAttribute("id", name + "-colours-array"), colourString.ToString()),
+						new XElement("technique_common",
+							new XElement("accessor", new XAttribute("count", colours.Length), new XAttribute("source", "#" + name + "-colours-array"), new XAttribute("stride", 4),
+								new XElement("param", new XAttribute("name", "R"), new XAttribute("type", "float")),
+								new XElement("param", new XAttribute("name", "G"), new XAttribute("type", "float")),
+								new XElement("param", new XAttribute("name", "B"), new XAttribute("type", "float")),
+								new XElement("param", new XAttribute("name", "A"), new XAttribute("type", "float")))))
+				);
 			}
 			#endregion
 
 			#region Polylist Setup
-			var vertexSource =
-			new XElement("vertices", new XAttribute("id", name + "-vertices"),
-				new XElement("input", new XAttribute("semantic", "POSITION"), new XAttribute("source", "#" + name + "-positions")));
+			meshElement.Add
+			(
+				new XElement("vertices", new XAttribute("id", name + "-vertices"),
+					new XElement("input", new XAttribute("semantic", "POSITION"), new XAttribute("source", "#" + name + "-positions")))
+			);
+
+			var isSubmat = matIds.Length > 1;
 
 			foreach(var material in materials)
 			{
 				var vcount = new StringBuilder();
 				var polies = new List<int>();
-				var isSubmat = matIds.Length > 1;
+				
 
 				if(isSubmat)
 				{
@@ -226,11 +237,6 @@ namespace CryEngine.RC
 
 				meshElement.Add(polylist);
 			}
-
-			meshElement.Add(posSource);
-			meshElement.Add(normalSource);
-			meshElement.Add(texSource);
-			meshElement.Add(vertexSource);
 			#endregion
 
 			#region Scene Library
