@@ -35,14 +35,17 @@
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.button1 = new System.Windows.Forms.Button();
 			this.label1 = new System.Windows.Forms.Label();
-			this.uxScaleUpDown = new System.Windows.Forms.NumericUpDown();
 			this.uxLog = new System.Windows.Forms.TextBox();
 			this.uxCompileAll = new System.Windows.Forms.Button();
+			this.label2 = new System.Windows.Forms.Label();
+			this.uxUVUpDown = new System.Windows.Forms.NumericUpDown();
+			this.uxScaleUpDown = new System.Windows.Forms.NumericUpDown();
 			this.uxAssetContext.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
 			this.splitContainer1.Panel2.SuspendLayout();
 			this.splitContainer1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.uxUVUpDown)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.uxScaleUpDown)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -84,6 +87,8 @@
 			// 
 			// splitContainer1.Panel2
 			// 
+			this.splitContainer1.Panel2.Controls.Add(this.label2);
+			this.splitContainer1.Panel2.Controls.Add(this.uxUVUpDown);
 			this.splitContainer1.Panel2.Controls.Add(this.button1);
 			this.splitContainer1.Panel2.Controls.Add(this.label1);
 			this.splitContainer1.Panel2.Controls.Add(this.uxScaleUpDown);
@@ -114,17 +119,6 @@
 			this.label1.TabIndex = 4;
 			this.label1.Text = "Scale Factor:";
 			// 
-			// uxScaleUpDown
-			// 
-			this.uxScaleUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.uxScaleUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::CryEngine.RC.Pipeline.Properties.Settings.Default, "ScaleFactor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-			this.uxScaleUpDown.DecimalPlaces = 2;
-			this.uxScaleUpDown.Location = new System.Drawing.Point(79, 493);
-			this.uxScaleUpDown.Name = "uxScaleUpDown";
-			this.uxScaleUpDown.Size = new System.Drawing.Size(66, 20);
-			this.uxScaleUpDown.TabIndex = 3;
-			this.uxScaleUpDown.Value = global::CryEngine.RC.Pipeline.Properties.Settings.Default.ScaleFactor;
-			// 
 			// uxLog
 			// 
 			this.uxLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -149,6 +143,42 @@
 			this.uxCompileAll.UseVisualStyleBackColor = true;
 			this.uxCompileAll.Click += new System.EventHandler(this.CompileAll);
 			// 
+			// label2
+			// 
+			this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(151, 495);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(54, 13);
+			this.label2.TabIndex = 7;
+			this.label2.Text = "UV Layer:";
+			// 
+			// uxUVUpDown
+			// 
+			this.uxUVUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.uxUVUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::CryEngine.RC.Pipeline.Properties.Settings.Default, "UVLayer", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+			this.uxUVUpDown.Location = new System.Drawing.Point(211, 493);
+			this.uxUVUpDown.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+			this.uxUVUpDown.Name = "uxUVUpDown";
+			this.uxUVUpDown.Size = new System.Drawing.Size(66, 20);
+			this.uxUVUpDown.TabIndex = 6;
+			this.uxUVUpDown.Value = global::CryEngine.RC.Pipeline.Properties.Settings.Default.UVLayer;
+			// 
+			// uxScaleUpDown
+			// 
+			this.uxScaleUpDown.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.uxScaleUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::CryEngine.RC.Pipeline.Properties.Settings.Default, "ScaleFactor", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+			this.uxScaleUpDown.DecimalPlaces = 2;
+			this.uxScaleUpDown.Location = new System.Drawing.Point(79, 493);
+			this.uxScaleUpDown.Name = "uxScaleUpDown";
+			this.uxScaleUpDown.Size = new System.Drawing.Size(66, 20);
+			this.uxScaleUpDown.TabIndex = 3;
+			this.uxScaleUpDown.Value = global::CryEngine.RC.Pipeline.Properties.Settings.Default.ScaleFactor;
+			// 
 			// ControlForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -164,6 +194,7 @@
 			this.splitContainer1.Panel2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.uxUVUpDown)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.uxScaleUpDown)).EndInit();
 			this.ResumeLayout(false);
 
@@ -180,6 +211,8 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.NumericUpDown uxScaleUpDown;
 		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.NumericUpDown uxUVUpDown;
 	}
 }
 

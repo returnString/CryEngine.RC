@@ -103,9 +103,14 @@ namespace CryEngine.RC.Pipeline
 				scene.BakeTransform(scene.RootNode);
 
 				var node = scene.RootNode.ChildNodes.FirstOrDefault(n => n.Attributes.Any(a => a.Type == NodeAttributeType.Mesh));
-
+				
 				if(node == default(SceneNode))
 					return;
+
+				var mesh = node.Mesh;
+
+				// Fix for cases where UVs reside on a different layer
+				mesh.UVLayer = (int)uxUVUpDown.Value;
 
 				var outputFile = GetMirrorFile(file);
 				var outputDir = outputFile.Directory;
@@ -118,7 +123,7 @@ namespace CryEngine.RC.Pipeline
 
 				var originalTime = cgfFile.LastWriteTime;
 
-				FbxConverter.ToCollada(node.Mesh, daeFile);
+				FbxConverter.ToCollada(mesh, daeFile);
 				ColladaConverter.CEPath = m_rootDir;
 				var finalFile = ColladaConverter.ToCgf(daeFile);
 
@@ -189,13 +194,10 @@ namespace CryEngine.RC.Pipeline
 
 			var tag = uxAssetTree.SelectedNode.Tag;
 
-			var file = tag as FileInfo;
-			var folder = tag as DirectoryInfo;
-
-			if(file != null)
-				CompileNonBlocking(file);
-			else if(folder != null)
-				CompileNonBlocking(folder.GetFiles(ExtensionFilter, SearchOption.AllDirectories));
+			if(tag is FileInfo)
+				CompileNonBlocking(tag as FileInfo);
+			else if(tag is DirectoryInfo)
+				CompileNonBlocking((tag as DirectoryInfo).GetFiles(ExtensionFilter, SearchOption.AllDirectories));
 		}
 
 		private void FormClose(object sender, FormClosingEventArgs e)

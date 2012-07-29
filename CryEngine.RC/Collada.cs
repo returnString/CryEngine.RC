@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace CryEngine.RC
@@ -21,10 +22,13 @@ namespace CryEngine.RC
 		/// <returns>The path to the CGF file.</returns>
 		public static FileInfo ToCgf(FileInfo colladaPath)
 		{
+			if(colladaPath == null)
+				throw new ArgumentNullException("colladaPath");
+
 			var startInfo = new ProcessStartInfo(Path.Combine(CEPath.FullName, "Bin32", "rc", "rc.exe"), "\"" + colladaPath + "\"") { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true };
 
 			using(var process = Process.Start(startInfo))
-				Log.Write(process.StandardOutput.ReadToEnd());
+				Logging.Write(process.StandardOutput.ReadToEnd());
 
 			return new FileInfo(colladaPath.FullName.ToLower().Replace(".dae", ".cgf"));
 		}

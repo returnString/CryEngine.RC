@@ -62,7 +62,7 @@ namespace CryEngine.RC.Frontend
 				}
 
 				var writer = new StringWriter();
-				Log.Write = writer.WriteLine;
+				Logging.Log += (text, type) => writer.WriteLine(text);
 
 				var output = new FileInfo(dialog.FileName);
 				var dae = new FileInfo(output.FullName.ToLower().Replace(".cgf", ".dae"));
@@ -75,6 +75,7 @@ namespace CryEngine.RC.Frontend
 				File.Delete(dae + ".rcdone");
 				
 				uxLog.Text = writer.ToString();
+
 				var selected = ActiveControl;
 				ActiveControl = uxLog;
 				uxLog.SelectionStart = 0;

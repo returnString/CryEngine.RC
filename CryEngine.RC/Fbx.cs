@@ -20,11 +20,16 @@ namespace CryEngine.RC
 		/// </summary>
 		/// <param name="mesh">The mesh to save.</param>
 		/// <param name="outputFile">The name of the .dae file to which the mesh will be saved.</param>
-		/// <param name="name">The name of the mesh to be used internally for the interim Collada file. This defaults to the file name.</param>
-		public static void ToCollada(Mesh mesh, FileInfo outputFile, string name = null)
+		/// <param name="name">The name of the mesh to be used internally for the interim Collada file.</param>
+		public static void ToCollada(Mesh mesh, FileInfo outputFile)
 		{
-			if(name == null)
-				name = outputFile.FullName.Split('/', '\\').Last().Split('.').First();
+			if(outputFile == null)
+				throw new ArgumentNullException("outputFile");
+
+			if(mesh == null)
+				throw new ArgumentNullException("mesh");
+
+			var name = outputFile.Name.Replace(outputFile.Extension, "");
 
 			// We use ToString on doubles, which uses the current culture; the EU etc uses commas, not periods
 			Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -32,7 +37,7 @@ namespace CryEngine.RC
 			// Should ideally be done in the 3D package but we can't depend on that, so do some rough triangulation
 			if(!mesh.HasOnlyTriangles)
 			{
-				Log.Write("Quads/ngons found in mesh, performing automatic triangulation.");
+				Logging.Write("Quads/ngons found in mesh, performing automatic triangulation.");
 				mesh = mesh.Triangulate();
 			}
 
@@ -50,7 +55,7 @@ namespace CryEngine.RC
 			var materials = (from mat in matIds.Distinct()
 							 select new { Id = mat, Name = string.Format("{0}__{1}__{2}__{3}", name, mat + 1, "sub" + (mat + 1), "physDefault") }).ToList();
 
-			// If a scene is exported without ids/materials, it will be default have no material info whatsoever
+			// If a scene is exported without ids/materials, it will by default have no material info whatsoever
 			// For simplicity's sake, we just add a dummy material in those cases to simplify processing later
 			if(materials.Count == 0)
 				materials.Add(new { Id = 0, Name = string.Format("{0}__{1}__{2}__{3}", name, 1, "sub", "physDefault") });
@@ -58,13 +63,7 @@ namespace CryEngine.RC
 			var materialLib = new XElement("library_materials");
 
 			foreach(var material in materials)
-			{
-				materialLib.Add
-				(
-					new XElement("material", new XAttribute("id", material.Name), new XAttribute("name", material.Name),
-						new XElement("instance_effect", new XAttribute("url", "#" + material.Name + "__fx")))
-				);
-			}
+				materialLib.Add(new XElement("material", new XAttribute("id", material.Name), new XAttribute("name", material.Name)));
 
 			root.Add(materialLib);
 			#endregion
