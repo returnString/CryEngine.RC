@@ -61,13 +61,16 @@ namespace CryEngine.RC.Frontend
 					return;
 				}
 
+				var mesh = node.Mesh;
+				mesh.UVLayer = (int)uxUVLayer.Value;
+
 				var writer = new StringWriter();
 				Logging.Log += (text, type) => writer.WriteLine(text);
 
 				var output = new FileInfo(dialog.FileName);
 				var dae = new FileInfo(output.FullName.ToLower().Replace(".cgf", ".dae"));
 
-				FbxConverter.ToCollada(node.Mesh, dae);
+				FbxConverter.ToCollada(mesh, dae);
 				ColladaConverter.CEPath = new DirectoryInfo(Settings.Default.ProjectPath);
 				ColladaConverter.ToCgf(dae);
 

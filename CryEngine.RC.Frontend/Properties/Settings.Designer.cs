@@ -46,5 +46,17 @@ namespace CryEngine.RC.Frontend.Properties {
                 this["ScaleFactor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal UVLayer {
+            get {
+                return ((decimal)(this["UVLayer"]));
+            }
+            set {
+                this["UVLayer"] = value;
+            }
+        }
     }
 }
