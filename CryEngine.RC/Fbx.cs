@@ -63,7 +63,7 @@ namespace CryEngine.RC
 			var materialLib = new XElement("library_materials");
 
 			foreach(var material in materials)
-				materialLib.Add(new XElement("material", new XAttribute("id", material.Name), new XAttribute("name", material.Name)));
+				materialLib.Add(new XElement("material", new XAttribute("id", material.Name), new XAttribute("name", material.Name), new XElement("instance_effect")));
 
 			root.Add(materialLib);
 			#endregion
@@ -85,7 +85,7 @@ namespace CryEngine.RC
 
 			var vertString = new StringBuilder();
 			foreach(var vertex in verts)
-				vertString.AppendFormat("{0} {1} {2} ", vertex.X, vertex.Y, vertex.Z);
+				vertString.AppendFormat("{0} {1} {2} ", Math.Round(vertex.X, 6), Math.Round(vertex.Y, 6), Math.Round(vertex.Z, 6));
 
 			meshElement.Add
 			(

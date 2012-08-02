@@ -28,7 +28,11 @@ namespace CryEngine.RC
 			var startInfo = new ProcessStartInfo(Path.Combine(CEPath.FullName, "Bin32", "rc", "rc.exe"), "\"" + colladaPath + "\"") { RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true };
 
 			using(var process = Process.Start(startInfo))
-				Logging.Write(process.StandardOutput.ReadToEnd());
+			{
+				var info = process.StandardOutput.ReadToEnd();
+				Logging.Write(info);
+				process.WaitForExit();
+			}
 
 			return new FileInfo(colladaPath.FullName.ToLower().Replace(".dae", ".cgf"));
 		}

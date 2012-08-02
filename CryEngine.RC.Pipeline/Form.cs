@@ -23,8 +23,8 @@ namespace CryEngine.RC.Pipeline
 		{
 			InitializeComponent();
 
-// If you're debugging this, just set this to whatever you like
 #if DEBUG
+			// If you're debugging this, just set this to whatever you like
 			var path = @"C:\Dev\CryENGINE3\Tools";
 #else
 			var path = Application.StartupPath;
@@ -33,6 +33,8 @@ namespace CryEngine.RC.Pipeline
 			m_rootDir = new DirectoryInfo(path).Parent;
 			m_assetDir = new DirectoryInfo(Path.Combine(m_rootDir.FullName, "Assets"));
 			m_mirrorDir = new DirectoryInfo(Path.Combine(m_rootDir.FullName, "Game", "Objects"));
+
+			ColladaConverter.CEPath = m_rootDir;
 
 			if(!m_assetDir.Exists)
 				m_assetDir.Create();
@@ -81,7 +83,7 @@ namespace CryEngine.RC.Pipeline
 				CompileSelection(files);
 
 				timer.Stop();
-				m_worker.ReportProgress(0, string.Format("Finished build in {0}s", timer.Elapsed.Seconds));
+				m_worker.ReportProgress(0, string.Format("Finished build in {0}s", Math.Round(timer.Elapsed.TotalSeconds, 1)));
 			};
 
 			m_worker.ProgressChanged += (s, args) =>
@@ -103,9 +105,12 @@ namespace CryEngine.RC.Pipeline
 				scene.BakeTransform(scene.RootNode);
 
 				var node = scene.RootNode.ChildNodes.FirstOrDefault(n => n.Attributes.Any(a => a.Type == NodeAttributeType.Mesh));
-				
+
 				if(node == default(SceneNode))
-					return;
+				{
+					m_worker.ReportProgress(0, "No suitable mesh found in file: " + file.FullName);
+					continue;
+				}
 
 				var mesh = node.Mesh;
 
@@ -124,16 +129,10 @@ namespace CryEngine.RC.Pipeline
 				var originalTime = cgfFile.LastWriteTime;
 
 				FbxConverter.ToCollada(mesh, daeFile);
-				ColladaConverter.CEPath = m_rootDir;
 				var finalFile = ColladaConverter.ToCgf(daeFile);
 
-				try
-				{
-					File.Delete(daeFile + ".rcdone");
-				}
-				catch(IOException)
-				{
-				}
+				File.Delete(daeFile + ".rcdone");
+				daeFile.Delete();
 
 				if(!finalFile.Exists)
 				{
@@ -147,8 +146,6 @@ namespace CryEngine.RC.Pipeline
 				{
 					m_worker.ReportProgress(0, "Successfully converted: " + file.FullName);
 				}
-
-				daeFile.Delete();
 			}
 		}
 
